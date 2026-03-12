@@ -17,11 +17,12 @@ Uses httpx for API requests and integrates with the Redmine OpenAPI specificatio
 
 ![MCP Redmine in action](https://raw.githubusercontent.com/runekaagaard/mcp-redmine/refs/heads/main/screenshot.png)
 
-
 ## Usage with Claude Desktop
+
 ### 1. Installation using `uv`
 
 Ensure you have uv installed.
+
 ```bash
 uv --version
 ```
@@ -29,11 +30,13 @@ uv --version
 Install uv if you haven't already.
 
 - Linux
+
   ```bash
   curl -LsSf https://astral.sh/uv/install.sh | sh
   ```
 
 - macOS
+
   ```zsh
   brew install uv
   ```
@@ -44,83 +47,99 @@ Install uv if you haven't already.
   ```
 
 Add to your `claude_desktop_config.json`:
+
 ```json
-  {
-    "mcpServers": {
-      "redmine": {
-        "command": "uvx",
-        "args": ["--from", "mcp-redmine==2026.01.13.152335",
-                "--refresh-package", "mcp-redmine", "mcp-redmine"],
-        "env": {
-          "REDMINE_URL": "https://your-redmine-instance.example.com",
-          "REDMINE_API_KEY": "your-api-key",
-          "REDMINE_REQUEST_INSTRUCTIONS": "/path/to/instructions.md",
-          "REDMINE_ALLOWED_DIRECTORIES": "/tmp,/home/user/uploads"
-        }
+{
+  "mcpServers": {
+    "redmine": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "mcp-redmine==2026.01.13.152335",
+        "--refresh-package",
+        "mcp-redmine",
+        "mcp-redmine"
+      ],
+      "env": {
+        "REDMINE_URL": "https://your-redmine-instance.example.com",
+        "REDMINE_API_KEY": "your-api-key",
+        "REDMINE_REQUEST_INSTRUCTIONS": "/path/to/instructions.md",
+        "REDMINE_ALLOWED_DIRECTORIES": "/tmp,/home/user/uploads"
       }
     }
   }
+}
 ```
 
 ### 2. Installation using `docker`
 
-Ensure you have docker installed. 
+Ensure you have docker installed.
+
 ```bash
 docker --version
 ```
 
 Build docker image:
+
 ```bash
 git clone git@github.com:runekaagaard/mcp-redmine.git
 cd mcp-redmine
 docker build -t mcp-redmine .
 ```
+
 Add to your `claude_desktop_config.json`:
-  ```json
-  {
-    "mcpServers": {
-      "redmine": {
-        "command": "docker",
-        "args":  [
-            "run",
-            "-i",
-            "--rm",
-            "-e", "REDMINE_URL",
-            "-e", "REDMINE_API_KEY",
-            "-e", "REDMINE_REQUEST_INSTRUCTIONS",
-            "-e", "REDMINE_ALLOWED_DIRECTORIES",
-            "-v", "/path/to/instructions.md:/app/INSTRUCTIONS.md",
-            "-v", "/path/to/uploads:/app/uploads",
-            "mcp-redmine"
-        ],
-        "env": {
-          "REDMINE_URL": "https://your-redmine-instance.example.com",
-          "REDMINE_API_KEY": "your-api-key",
-          "REDMINE_REQUEST_INSTRUCTIONS": "/app/INSTRUCTIONS.md",
-          "REDMINE_ALLOWED_DIRECTORIES": "/app/uploads"
-        }
+
+```json
+{
+  "mcpServers": {
+    "redmine": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "REDMINE_URL",
+        "-e",
+        "REDMINE_API_KEY",
+        "-e",
+        "REDMINE_REQUEST_INSTRUCTIONS",
+        "-e",
+        "REDMINE_ALLOWED_DIRECTORIES",
+        "-v",
+        "/path/to/instructions.md:/app/INSTRUCTIONS.md",
+        "-v",
+        "/path/to/uploads:/app/uploads",
+        "mcp-redmine"
+      ],
+      "env": {
+        "REDMINE_URL": "https://your-redmine-instance.example.com",
+        "REDMINE_API_KEY": "your-api-key",
+        "REDMINE_REQUEST_INSTRUCTIONS": "/app/INSTRUCTIONS.md",
+        "REDMINE_ALLOWED_DIRECTORIES": "/app/uploads"
       }
     }
   }
-  ```
+}
+```
 
 ## Environment Variables
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `REDMINE_URL` | Yes | - | URL of your Redmine instance. Subpaths are supported (e.g., `http://localhost/redmine/`) |
-| `REDMINE_API_KEY` | Yes | - | Your Redmine API key (see below for how to get it) |
-| `REDMINE_REQUEST_INSTRUCTIONS` | No | - | Path to a file containing additional instructions for the redmine_request tool. I've found it works great to have the LLM generate that file after a session. ([example1](INSTRUCTIONS_EXAMPLE1.md) [example2](INSTRUCTIONS_EXAMPLE2.md)) |
-| `REDMINE_HEADERS` | No | (empty) | Custom HTTP headers to include in all requests. Format: `"Header1: Value1, Header2: Value2"`. Useful for proxies that require additional authentication (e.g., `X-Redmine-Username`) |
-| `REDMINE_RESPONSE_FORMAT` | No | `yaml` | Response format: `yaml` or `json`. Controls how API responses are formatted |
-| `REDMINE_ALLOWED_DIRECTORIES` | For upload/download | (disabled) | **Required for file operations.** Comma-separated list of directories where upload/download are allowed (e.g., `/tmp,/home/user/uploads`). Upload/download are disabled if not set for security |
-| `REDMINE_DANGEROUSLY_ACCEPT_INVALID_CERTS` | No | (disabled) | Set to `1` to disable SSL certificate verification. Use only for self-signed certs in trusted environments |
+| Variable                                   | Required            | Default    | Description                                                                                                                                                                                                                               |
+| ------------------------------------------ | ------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `REDMINE_URL`                              | Yes                 | -          | URL of your Redmine instance. Subpaths are supported (e.g., `http://localhost/redmine/`)                                                                                                                                                  |
+| `REDMINE_API_KEY`                          | Yes                 | -          | Your Redmine API key (see below for how to get it)                                                                                                                                                                                        |
+| `REDMINE_REQUEST_INSTRUCTIONS`             | No                  | -          | Path to a file containing additional instructions for the redmine_request tool. I've found it works great to have the LLM generate that file after a session. ([example1](INSTRUCTIONS_EXAMPLE1.md) [example2](INSTRUCTIONS_EXAMPLE2.md)) |
+| `REDMINE_HEADERS`                          | No                  | (empty)    | Custom HTTP headers to include in all requests. Format: `"Header1: Value1, Header2: Value2"`. Useful for proxies that require additional authentication (e.g., `X-Redmine-Username`)                                                      |
+| `REDMINE_RESPONSE_FORMAT`                  | No                  | `yaml`     | Response format: `yaml` or `json`. Controls how API responses are formatted                                                                                                                                                               |
+| `REDMINE_ALLOWED_DIRECTORIES`              | For upload/download | (disabled) | **Required for file operations.** Comma-separated list of directories where upload/download are allowed (e.g., `/tmp,/home/user/uploads`). Upload/download are disabled if not set for security                                           |
+| `REDMINE_DANGEROUSLY_ACCEPT_INVALID_CERTS` | No                  | (disabled) | Set to `1` to disable SSL certificate verification. Use only for self-signed certs in trusted environments                                                                                                                                |
+| `TRANSPORT_SECURITY`                       | No                  | (enabled)  | Set to `false` to disable transport security for usage behind a reverse proxy.                                                                                                                                                            |
 
 > **Note**: When running via Docker, the `REDMINE_REQUEST_INSTRUCTIONS` environment variable must point to a **path inside the container**, not a path on the host machine.
 > Therefore, if you want to use a local file, you need to **mount it into the container** at the correct location.
 
 > **Security Note**: The `REDMINE_ALLOWED_DIRECTORIES` setting protects against path traversal attacks. Paths containing `../` are resolved before validation, ensuring files can only be accessed within the allowed directories.
-
 
 ## Getting Your Redmine API Key
 
@@ -138,6 +157,7 @@ Add to your `claude_desktop_config.json`:
   - Return a list of available API paths from OpenAPI spec
   - No input required
   - Returns a YAML string containing a list of path templates:
+
   ```
   - /issues.json
   - /projects.json
@@ -149,6 +169,7 @@ Add to your `claude_desktop_config.json`:
   - Get full path information for given path templates
   - Input: `path_templates` (list of strings)
   - Returns YAML string containing API specifications for the requested paths:
+
   ```yaml
   /issues.json:
     get:
@@ -166,6 +187,7 @@ Add to your `claude_desktop_config.json`:
     - `data` (object, optional): Dictionary for request body (for POST/PUT)
     - `params` (object, optional): Dictionary for query parameters
   - Returns YAML string containing response status code, body and error message:
+
   ```yaml
   status_code: 200
   body:
@@ -183,6 +205,7 @@ Add to your `claude_desktop_config.json`:
     - `file_path` (string): Fully qualified path to the file to upload (must be within allowed directories)
     - `description` (string, optional): Optional description for the file
   - Returns YAML string with the same format as redmine_request, including upload token:
+
   ```yaml
   status_code: 201
   body:

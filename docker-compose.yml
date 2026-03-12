@@ -3,6 +3,8 @@ services:
     build: .
     ports:
       - 8000:8000
+    environment:
+      - TRANSPORT_SECURITY=false
     env_file:
       - .env
 

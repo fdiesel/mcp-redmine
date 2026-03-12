@@ -18,6 +18,8 @@ with open(current_dir / 'redmine_openapi.yml') as f:
 REDMINE_URL = os.environ['REDMINE_URL'].rstrip('/') + '/'  # Normalize to always end with /
 REDMINE_API_KEY = os.environ['REDMINE_API_KEY']
 REDMINE_RESPONSE_FORMAT = os.environ.get('REDMINE_RESPONSE_FORMAT', 'yaml').lower()
+TRANSPORT_SECURITY = os.environ.get('TRANSPORT_SECURITY', 'true').lower() != 'false'
+
 
 # Custom headers (format: "Header1: Value1, Header2: Value2")
 REDMINE_HEADERS = {}
@@ -262,6 +264,8 @@ def main():
     if args.transport == "sse":
         mcp.settings.host = args.host
         mcp.settings.port = args.port
+        if not TRANSPORT_SECURITY:
+            mcp.settings.transport_security = None
     mcp.run(transport=args.transport)
 
 if __name__ == "__main__":
