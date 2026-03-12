@@ -1,0 +1,5 @@
+services:
+  mcp-redmine:
+    build: .
+    env_file:
+      - .env
